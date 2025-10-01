@@ -1,58 +1,102 @@
 {
-    "_metadata": {
-        "major_version": 1,
-        "minor_version": 1
-    },
     "display_information": {
-        "name": "Bolt Template App"
+        "name": "bolt-ts-search"
     },
     "features": {
         "app_home": {
-            "home_tab_enabled": true,
-            "messages_tab_enabled": false,
-            "messages_tab_read_only_enabled": true
+            "home_tab_enabled": false,
+            "messages_tab_enabled": false
         },
         "bot_user": {
-            "display_name": "Bolt Template App",
-            "always_online": false
+            "display_name": "bolt-ts-search",
+            "always_online": true
         },
-        "shortcuts": [
-            {
-                "name": "Run sample shortcut",
-                "type": "global",
-                "callback_id": "sample_shortcut_id",
-                "description": "Runs a sample shortcut"
-            }
-        ],
-        "slash_commands": [
-            {
-                "command": "/sample-command",
-                "description": "Runs a sample command",
-                "should_escape": false
-            }
-        ]
+        "search": {
+            "search_function_callback_id": "search",
+            "search_filters_function_callback_id": "filters",
+            "enable_ai_answers": true
+        }
     },
     "oauth_config": {
         "scopes": {
             "bot": [
-                "channels:history",
-                "chat:write",
-                "commands"
+                "chat:write"
             ]
         }
     },
     "settings": {
         "event_subscriptions": {
             "bot_events": [
-                "app_home_opened",
-                "message.channels"
+                "function_executed"
             ]
         },
         "interactivity": {
-            "is_enabled": true
+            "is_enabled": false
         },
         "org_deploy_enabled": true,
         "socket_mode_enabled": true,
-        "token_rotation_enabled": false
+        "token_rotation_enabled": false,
+        "hermes_app_type": "remote",
+        "function_runtime": "remote"
+    },
+    "functions": {
+        "filters": {
+            "title": "Sample filters",
+            "description": "Returns the filters for the search function",
+            "input_parameters": {
+                "user_context": {
+                    "type": "slack#/types/user_context",
+                    "title": "User Context",
+                    "description": "The context of the user executing a search",
+                    "is_required": true,
+                    "name": "user_context"
+                }
+            },
+            "output_parameters": {
+                "filters": {
+                    "type": "slack#/types/search_filters",
+                    "title": "Search Filters",
+                    "description": "An array containing the available filters for the search",
+                    "is_required": true,
+                    "name": "filters"
+                }
+            }
+        },
+        "search": {
+            "title": "Sample search",
+            "description": "Returns the available search result given the query and filter",
+            "input_parameters": {
+                "query": {
+                    "type": "string",
+                    "title": "Query",
+                    "description": "The search query entered by the user",
+                    "is_required": true,
+                    "name": "query"
+                },
+                "filters": {
+                    "type": "object",
+                    "title": "Filters",
+                    "description": "The filters selected by the user",
+                    "is_required": true,
+                    "name": "filters"
+                },
+                "user_context": {
+                    "type": "slack#/types/user_context",
+                    "title": "User Context",
+                    "description": "The context of the user executing a search",
+                    "is_required": true,
+                    "name": "user_context"
+                }
+            },
+            "output_parameters": {
+                "search_result": {
+                    "type": "slack#/types/search_results",
+                    "title": "Search Result",
+                    "description": "An array containing the search results based on the inputs",
+                    "is_required": true,
+                    "name": "search_result"
+                }
+            }
+        }
     }
 }
