@@ -1,4 +1,9 @@
-interface EntityReference {
+export interface UserContext {
+  id: string;
+  secret: string;
+}
+
+export interface EntityReference {
   id: string;
   type?: string;
 }
@@ -12,7 +17,7 @@ export interface SearchResult {
   content?: string;
 }
 
-export interface SlackApiResponse {
+export interface SlackSampleDataResponse {
   ok: boolean;
   samples: SearchResult[];
 }

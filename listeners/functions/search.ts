@@ -1,79 +1,23 @@
 import type { AllMiddlewareArgs, FunctionInputs, SlackEventMiddlewareArgs } from '@slack/bolt';
-import type { SearchResult, SlackApiResponse } from './types';
+import Fuse from 'fuse.js';
+import { isObject, isSlackSampleDataResponse, isString, isUserContext } from './type-guards';
+import type { UserContext } from './types';
+
+const ERROR_MESSAGES = {
+  SEARCH_PROCESSING_ERROR:
+    'We encountered an issue processing your search results. Please try again or contact the app owner if the problem persists.',
+} as const;
 
 interface SearchInputs extends FunctionInputs {
   query: string;
   filters: Record<string, boolean | string | string[]>;
-  user_context: {
-    id: string;
-    secret: string;
-  };
+  user_context: UserContext;
 }
 
 function isSearchInputs(inputs: FunctionInputs): inputs is SearchInputs {
-  if (typeof inputs.query !== 'string') {
+  if (!isString(inputs.query) || !isObject(inputs.filters) || !isUserContext(inputs.user_context)) {
     return false;
   }
-
-  if (!inputs.filters || typeof inputs.filters !== 'object') {
-    return false;
-  }
-
-  if (!inputs.user_context || typeof inputs.user_context !== 'object') {
-    return false;
-  }
-
-  return true;
-}
-
-function isSlackApiResponse(data: unknown): data is SlackApiResponse {
-  if (typeof data !== 'object') {
-    return false;
-  }
-
-  const candidate = data as Record<string, unknown>;
-
-  if (typeof candidate.ok !== 'boolean' || !Array.isArray(candidate.samples)) {
-    return false;
-  }
-
-  for (const sample of candidate.samples) {
-    if (!isSampleData(sample)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function isSampleData(data: unknown): data is SearchResult {
-  if (typeof data !== 'object') {
-    return false;
-  }
-
-  const candidate = data as Record<string, unknown>;
-  if (
-    typeof candidate.title !== 'string' ||
-    typeof candidate.description !== 'string' ||
-    typeof candidate.date_updated !== 'string' ||
-    typeof candidate.link !== 'string'
-  ) {
-    return false;
-  }
-
-  if (!candidate.external_ref || typeof candidate.external_ref !== 'object') {
-    return false;
-  }
-
-  const externalRef = candidate.external_ref as Record<string, unknown>;
-  if (typeof externalRef.id !== 'string') {
-    return false;
-  }
-
-  if (candidate.content !== undefined && typeof candidate.content !== 'string') {
-    return false;
-  }
-
   return true;
 }
 
@@ -82,50 +26,51 @@ const searchCallback = async ({
   inputs,
   fail,
   complete,
+  client,
   logger,
 }: AllMiddlewareArgs & SlackEventMiddlewareArgs<'function_executed'>) => {
   try {
-    // Use the type guard to ensure inputs are valid
     if (!isSearchInputs(inputs)) {
-      logger.error('Invalid search inputs provided');
-      await fail({ error: 'Invalid search inputs: please reach out to the app owner' });
+      logger.error(`Invalid search inputs provided - received: ${JSON.stringify(inputs)}`);
+      await fail({ error: ERROR_MESSAGES.SEARCH_PROCESSING_ERROR });
       return;
     }
 
     const { query, filters, user_context } = inputs;
-    logger.debug(`User executing a search: ${user_context.id}`);
+    logger.debug(`User ${user_context.id} executing search query: "${query}" with filters: ${JSON.stringify(filters)}`);
 
-    const url = new URL('https://slack.com/api/developer.sampleData.get');
-    url.searchParams.set('filters', JSON.stringify(filters));
-
-    const request = new Request(url.toString(), {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    });
-
-	// TODO: use the client here instead of a fetch
-    const response = await fetch(request);
+    const response = await client.apiCall('developer.sampleData.get', { filters: JSON.stringify(filters) });
 
     if (!response.ok) {
-      logger.error(`API request failed: ${response.status} ${response.statusText}`);
-      await fail({ error: `API request failed: ${response.status}` });
+      logger.error(`Search API request failed with error: ${response.error}`);
+      await fail({ error: ERROR_MESSAGES.SEARCH_PROCESSING_ERROR });
       return;
     }
 
-    const data = await response.json();
-
-    if (!isSlackApiResponse(data) || !data.ok) {
-      logger.error(`Failed fetch request from ${response.url}: ${JSON.stringify(data)}`);
-      await fail({ error: 'Invalid search result fetch: please reach out to the app owner' });
+    if (!isSlackSampleDataResponse(response)) {
+      logger.error(`Failed to parse API response as sample data. Received: ${JSON.stringify(response)}`);
+      await fail({ error: ERROR_MESSAGES.SEARCH_PROCESSING_ERROR });
       return;
     }
 
-    await complete({ outputs: { search_results: data.samples } });
+    const fuse = new Fuse(response.samples, {
+      keys: ['title', 'description', 'content'],
+      shouldSort: true,
+      threshold: 0.6,
+    });
+
+    const results = fuse.search(query);
+
+    await complete({
+      outputs: {
+        search_result: results.map((result) => {
+          return result.item;
+        }),
+      },
+    });
   } catch (error) {
     logger.error('Search function error:', error);
-    await fail({ error: `Failed to handle search request: ${error}` });
+    await fail({ error: ERROR_MESSAGES.SEARCH_PROCESSING_ERROR });
   } finally {
     await ack();
   }
