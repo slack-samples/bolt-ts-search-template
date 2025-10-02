@@ -6,9 +6,9 @@
   "scripts": {
     "build": "tsc",
     "start": "npm run build && node ./dist/app.js",
-    "lint": "npx @biomejs/biome check *.ts listeners",
-    "lint:fix": "npx @biomejs/biome check --write *.ts listeners",
-    "test": "npm run build && npm run lint"
+    "lint": "npx @biomejs/biome check *.ts listeners test",
+    "lint:fix": "npx @biomejs/biome check --write *.ts listeners test",
+    "test": "npm run build && npm run lint && jest"
   },
   "author": "Slack Technologies, LLC",
   "license": "MIT",
@@ -33,6 +33,22 @@
   "devDependencies": {
     "@biomejs/biome": "^2.2.2",
     "@slack/cli-hooks": "^1.2.1",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.4",
     "typescript": "^5.9.2"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/test"
+    ],
+    "testMatch": [
+      "**/*.test.ts"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    }
   }
 }

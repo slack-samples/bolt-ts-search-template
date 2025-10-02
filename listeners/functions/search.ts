@@ -4,12 +4,7 @@ import Fuse from 'fuse.js';
 import { isSearchInputs, isSlackSampleDataResponse } from './type-guards';
 import type { SearchInputs, SearchResult } from './types';
 
-const ERROR_MESSAGES = {
-  SEARCH_PROCESSING_ERROR:
-    'We encountered an issue processing your search results. Please try again or contact the app owner if the problem persists.',
-} as const;
-
-class SlackResponseError extends Error {
+export class SlackResponseError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'SlackResponseError';
@@ -17,6 +12,9 @@ class SlackResponseError extends Error {
 }
 
 export const SearchService = {
+  SEARCH_PROCESSING_ERROR_MSG:
+    'We encountered an issue processing your search results. Please try again or contact the app owner if the problem persists.',
+
   fetchSampleData: async ({
     client,
     filters,
@@ -66,7 +64,7 @@ async function searchCallback({
   try {
     if (!isSearchInputs(inputs)) {
       logger.error(`Invalid search inputs provided - received: ${JSON.stringify(inputs)}`);
-      await fail({ error: ERROR_MESSAGES.SEARCH_PROCESSING_ERROR });
+      await fail({ error: SearchService.SEARCH_PROCESSING_ERROR_MSG });
       return;
     }
 
@@ -88,7 +86,7 @@ async function searchCallback({
         `Unexpected error occurred while processing search request: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
-    await fail({ error: ERROR_MESSAGES.SEARCH_PROCESSING_ERROR });
+    await fail({ error: SearchService.SEARCH_PROCESSING_ERROR_MSG });
   } finally {
     await ack();
   }
