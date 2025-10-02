@@ -1,22 +1,11 @@
-import type { AllMiddlewareArgs, FunctionInputs, SlackEventMiddlewareArgs } from '@slack/bolt';
-import { isUserContext } from './type-guards';
-import type { SearchFilter, UserContext } from './types';
+import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
+import { isFilterInputs } from './type-guards';
+import type { SearchFilter } from './types';
 
 const ERROR_MESSAGES = {
-  SEARCH_PROCESSING_ERROR:
+  FILTER_PROCESSING_ERROR:
     'We encountered an issue processing filter results. Please try again or contact the app owner if the problem persists.',
 } as const;
-
-interface SearchInputs extends FunctionInputs {
-  user_context: UserContext;
-}
-
-function isFilterInputs(inputs: FunctionInputs): inputs is SearchInputs {
-  if (!isUserContext(inputs.user_context)) {
-    return false;
-  }
-  return true;
-}
 
 const filtersCallback = async ({
   ack,
@@ -28,7 +17,7 @@ const filtersCallback = async ({
   try {
     if (!isFilterInputs(inputs)) {
       logger.error(`Invalid filter inputs provided - received: ${JSON.stringify(inputs)}`);
-      await fail({ error: ERROR_MESSAGES.SEARCH_PROCESSING_ERROR });
+      await fail({ error: ERROR_MESSAGES.FILTER_PROCESSING_ERROR });
       return;
     }
     const { user_context } = inputs as { user_context: { id: string } };
@@ -59,8 +48,10 @@ const filtersCallback = async ({
 
     await complete({ outputs: { filters } });
   } catch (error) {
-    logger.error('Filters function error:', error);
-    await fail({ error: `Failed to handle filters request: ${error}` });
+    logger.error(
+      `Unexpected error occurred while processing filters request: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    await fail({ error: ERROR_MESSAGES.FILTER_PROCESSING_ERROR });
   } finally {
     await ack();
   }

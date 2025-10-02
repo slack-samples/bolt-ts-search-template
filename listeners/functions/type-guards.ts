@@ -1,4 +1,12 @@
-import type { EntityReference, SearchResult, SlackSampleDataResponse, UserContext } from './types';
+import type { FunctionInputs } from '@slack/bolt';
+import type {
+  EntityReference,
+  FilterInputs,
+  SearchInputs,
+  SearchResult,
+  SlackSampleDataResponse,
+  UserContext,
+} from './types';
 
 export function isString(value: unknown): value is string {
   return typeof value === 'string';
@@ -30,6 +38,20 @@ export function isUserContext(data: unknown): data is UserContext {
     return false;
   }
   if (!isString(data.id) || !isString(data.secret)) {
+    return false;
+  }
+  return true;
+}
+
+export function isSearchInputs(inputs: FunctionInputs): inputs is SearchInputs {
+  if (!isString(inputs.query) || !isObject(inputs.filters) || !isUserContext(inputs.user_context)) {
+    return false;
+  }
+  return true;
+}
+
+export function isFilterInputs(inputs: FunctionInputs): inputs is FilterInputs {
+  if (!isUserContext(inputs.user_context)) {
     return false;
   }
   return true;

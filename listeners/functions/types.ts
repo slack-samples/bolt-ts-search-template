@@ -1,3 +1,5 @@
+import type { FunctionInputs } from '@slack/bolt';
+
 export interface UserContext {
   id: string;
   secret: string;
@@ -32,4 +34,14 @@ export interface SearchFilter {
   display_name: string;
   type: string;
   options?: FilterOption[];
+}
+
+export interface SearchInputs extends FunctionInputs {
+  query: string;
+  filters: Record<string, boolean | string | string[]>;
+  user_context: UserContext;
+}
+
+export interface FilterInputs extends FunctionInputs {
+  user_context: UserContext;
 }
