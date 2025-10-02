@@ -1,27 +1,9 @@
 import type { FunctionInputs } from '@slack/bolt';
+import type { Filters } from '../types';
 
 export interface UserContext {
   id: string;
   secret: string;
-}
-
-export interface EntityReference {
-  id: string;
-  type?: string;
-}
-
-export interface SearchResult {
-  title: string;
-  description: string;
-  date_updated: string;
-  external_ref: EntityReference;
-  link: string;
-  content?: string;
-}
-
-export interface SlackSampleDataResponse {
-  ok: boolean;
-  samples: SearchResult[];
 }
 
 export interface FilterOption {
@@ -38,7 +20,7 @@ export interface SearchFilter {
 
 export interface SearchInputs extends FunctionInputs {
   query: string;
-  filters: Record<string, boolean | string | string[]>;
+  filters: Filters;
   user_context: UserContext;
 }
 

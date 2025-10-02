@@ -1,8 +1,8 @@
-import type { AllMiddlewareArgs, Logger, SlackEventMiddlewareArgs } from '@slack/bolt';
-import type { WebClient } from '@slack/web-api';
+import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
 import Fuse from 'fuse.js';
-import { isSearchInputs, isSlackSampleDataResponse } from './type-guards';
-import type { SearchInputs, SearchResult } from './types';
+import { SampleDataService } from '../sample-data-fetcher';
+import type { SearchResult } from '../types';
+import { isSearchInputs } from './type-guards';
 
 export class SlackResponseError extends Error {
   constructor(message: string) {
@@ -14,29 +14,6 @@ export class SlackResponseError extends Error {
 export const SearchService = {
   SEARCH_PROCESSING_ERROR_MSG:
     'We encountered an issue processing your search results. Please try again or contact the app owner if the problem persists.',
-
-  fetchSampleData: async ({
-    client,
-    filters,
-    logger,
-  }: {
-    client: WebClient;
-    filters: SearchInputs['filters'];
-    logger: Logger;
-  }) => {
-    const response = await client.apiCall('developer.sampleData.get', { filters: JSON.stringify(filters) });
-
-    if (!response.ok) {
-      logger.error(`Search API request failed with error: ${response.error}`);
-      throw new SlackResponseError('Failed to fetch sample data from Slack API');
-    }
-
-    if (!isSlackSampleDataResponse(response)) {
-      logger.error(`Failed to parse API response as sample data. Received: ${JSON.stringify(response)}`);
-      throw new SlackResponseError('Invalid response format from Slack API');
-    }
-    return response;
-  },
 
   fuzzySearch: async ({ query, samples }: { query: string; samples: SearchResult[] }) => {
     const fuse = new Fuse(samples, {
@@ -71,7 +48,7 @@ async function searchCallback({
     const { query, filters, user_context } = inputs;
     logger.debug(`User ${user_context.id} executing search query: "${query}" with filters: ${JSON.stringify(filters)}`);
 
-    const response = await SearchService.fetchSampleData({ client, filters, logger });
+    const response = await SampleDataService.fetchSampleData({ client, filters, logger });
 
     await complete({
       outputs: {
