@@ -2,15 +2,7 @@ import type { AckFn, AllMiddlewareArgs, Logger, SlackEventMiddlewareArgs } from 
 import type { WebClient } from '@slack/web-api';
 import searchCallback, { SearchService, SlackResponseError } from '../../../listeners/functions/search';
 import { SampleDataService } from '../../../listeners/sample-data-fetcher';
-import {
-  fakeAck,
-  fakeClient,
-  fakeComplete,
-  fakeFail,
-  fakeLogger,
-  fakeSampleData,
-  fakeSlackResponse,
-} from '../../helpers';
+import { fakeAck, fakeClient, fakeComplete, fakeFail, fakeLogger, fakeSlackResponse } from '../../helpers';
 
 const validInputs = {
   query: 'javascript',
@@ -43,49 +35,6 @@ const buildArguments = ({
   } as unknown as AllMiddlewareArgs & SlackEventMiddlewareArgs<'function_executed'>;
 };
 
-describe('SearchService', () => {
-  describe('fuzzySearch', () => {
-    it('should return matching results for a query', async () => {
-      const results = await SearchService.fuzzySearch({
-        query: 'python',
-        samples: fakeSampleData,
-      });
-
-      expect(results).toHaveLength(1);
-      expect(results[0]).toBe(fakeSampleData[1]);
-    });
-
-    it('should return multiple results for broader queries', async () => {
-      const results = await SearchService.fuzzySearch({
-        query: 'template',
-        samples: fakeSampleData,
-      });
-
-      expect(results.length).toBeGreaterThan(1);
-      expect(results.some((r) => r.title.includes('JavaScript'))).toBe(true);
-      expect(results.some((r) => r.title.includes('Python'))).toBe(true);
-    });
-
-    it('should return empty array for no matches', async () => {
-      const results = await SearchService.fuzzySearch({
-        query: 'nonexistentquery12345',
-        samples: fakeSampleData,
-      });
-
-      expect(results).toHaveLength(0);
-    });
-
-    it('should handle empty samples array', async () => {
-      const results = await SearchService.fuzzySearch({
-        query: 'javascript',
-        samples: [],
-      });
-
-      expect(results).toHaveLength(0);
-    });
-  });
-});
-
 describe('searchCallback', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -98,6 +47,7 @@ describe('searchCallback', () => {
 
     expect(SampleDataService.fetchSampleData).toHaveBeenCalledWith({
       client: fakeClient,
+      query: validInputs.query,
       filters: validInputs.filters,
       logger: fakeLogger,
     });

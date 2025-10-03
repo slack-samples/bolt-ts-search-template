@@ -1,5 +1,6 @@
 import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
 import { SampleDataService, SlackResponseError } from '../sample-data-fetcher';
+import { isWebAPICallError } from '../type-guards';
 import { isEntityDetailsRequestedEvent } from './type-guards';
 
 async function entityDetailsRequestedCallback({
@@ -44,7 +45,7 @@ async function entityDetailsRequestedCallback({
       });
     }
 
-    client.apiCall('entity.presentDetails', {
+    await client.apiCall('entity.presentDetails', {
       trigger_id: event.trigger_id,
       metadata: {
         entity_type: 'slack#/entities/item',
@@ -69,6 +70,8 @@ async function entityDetailsRequestedCallback({
   } catch (error) {
     if (error instanceof SlackResponseError) {
       logger.error(`Failed to fetch or parse sample data. Error details: ${error.message}`);
+    } else if (isWebAPICallError(error)) {
+      logger.error(`Slack API call failed with error code ${error.code}. Check error details below:`, error);
     } else {
       logger.error(
         `Unexpected error occurred while processing entity_details_requested event: ${error instanceof Error ? error.message : String(error)}`,

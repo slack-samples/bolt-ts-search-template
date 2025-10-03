@@ -13,14 +13,20 @@ export class SlackResponseError extends Error {
 export const SampleDataService = {
   fetchSampleData: async ({
     client,
-    filters = {},
+    query,
+    filters,
     logger,
   }: {
     client: WebClient;
+    query?: string;
     filters?: Filters;
     logger: Logger;
   }) => {
-    const response = await client.apiCall('developer.sampleData.get', { filters: JSON.stringify(filters) });
+    const options = {
+      ...(query && { query }),
+      ...(filters && { filters }),
+    };
+    const response = await client.apiCall('developer.sampleData.get', options);
 
     if (!response.ok) {
       logger.error(`Search API request failed with error: ${response.error}`);

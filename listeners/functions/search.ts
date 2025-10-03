@@ -1,7 +1,6 @@
 import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
-import Fuse from 'fuse.js';
 import { SampleDataService } from '../sample-data-fetcher';
-import type { SearchResult } from '../types';
+import { isWebAPICallError } from '../type-guards';
 import { isSearchInputs } from './type-guards';
 
 export class SlackResponseError extends Error {
@@ -14,20 +13,6 @@ export class SlackResponseError extends Error {
 export const SearchService = {
   SEARCH_PROCESSING_ERROR_MSG:
     'We encountered an issue processing your search results. Please try again or contact the app owner if the problem persists.',
-
-  fuzzySearch: async ({ query, samples }: { query: string; samples: SearchResult[] }) => {
-    const fuse = new Fuse(samples, {
-      keys: ['title', 'description', 'content'],
-      shouldSort: true,
-      threshold: 0.6,
-    });
-
-    const results = fuse.search(query);
-
-    return results.map((result) => {
-      return result.item;
-    });
-  },
 };
 
 async function searchCallback({
@@ -48,16 +33,18 @@ async function searchCallback({
     const { query, filters, user_context } = inputs;
     logger.debug(`User ${user_context.id} executing search query: "${query}" with filters: ${JSON.stringify(filters)}`);
 
-    const response = await SampleDataService.fetchSampleData({ client, filters, logger });
+    const response = await SampleDataService.fetchSampleData({ client, query, filters, logger });
 
     await complete({
       outputs: {
-        search_result: await SearchService.fuzzySearch({ query, samples: response.samples }),
+        search_result: response.samples,
       },
     });
   } catch (error) {
     if (error instanceof SlackResponseError) {
       logger.error(`Failed to fetch or parse sample data. Error details: ${error.message}`);
+    } else if (isWebAPICallError(error)) {
+      logger.error(`Slack API call failed with error code ${error.code}. Check error details below:`, error);
     } else {
       logger.error(
         `Unexpected error occurred while processing search request: ${error instanceof Error ? error.message : String(error)}`,

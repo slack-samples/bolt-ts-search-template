@@ -1,5 +1,5 @@
 {
-  "name": "bolt-ts-starter-template",
+  "name": "bolt-ts-search-template",
   "version": "1.0.0",
   "description": "A scaffold template for Slack apps",
   "main": "dist/app.js",
@@ -20,15 +20,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/slack-samples/bolt-ts-starter-template.git"
+    "url": "https://github.com/slack-samples/bolt-ts-search-template.git"
   },
   "bugs": {
-    "url": "https://github.com/slack-samples/bolt-ts-starter-template/issues"
+    "url": "https://github.com/slack-samples/bolt-ts-search-template/issues"
   },
   "dependencies": {
     "@slack/bolt": "^4.4.0",
-    "dotenv": "~17.2.1",
-    "fuse.js": "^7.1.0"
+    "dotenv": "~17.2.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.2",

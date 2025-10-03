@@ -1,4 +1,5 @@
 import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
+import { isWebAPICallError } from '../type-guards';
 import { isFilterInputs } from './type-guards';
 import type { SearchFilter } from './types';
 
@@ -48,9 +49,13 @@ async function filtersCallback({
 
     await complete({ outputs: { filters } });
   } catch (error) {
-    logger.error(
-      `Unexpected error occurred while processing filters request: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    if (isWebAPICallError(error)) {
+      logger.error(`Slack API call failed with error code ${error.code}. Check error details below:`, error);
+    } else {
+      logger.error(
+        `Unexpected error occurred while processing filters request: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
     await fail({ error: FilterService.FILTER_PROCESSING_ERROR_MSG });
   } finally {
     await ack();

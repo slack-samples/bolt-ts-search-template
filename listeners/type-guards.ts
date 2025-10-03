@@ -1,3 +1,4 @@
+import { ErrorCode, type WebAPICallError } from '@slack/web-api';
 import type { EntityReference, SearchResult, SlackSampleDataResponse } from './types';
 
 export function isString(value: unknown): value is string {
@@ -20,6 +21,16 @@ function isArray<T>(value: unknown, itemGuard?: (item: unknown) => item is T): v
     return true;
   }
   return value.every(itemGuard);
+}
+
+export function isWebAPICallError(error: unknown): error is WebAPICallError {
+  if (!isObject(error)) {
+    return false;
+  }
+  if (!('code' in error) || !isString(error.code)) {
+    return false;
+  }
+  return Object.values(ErrorCode).includes(error.code as ErrorCode);
 }
 
 export function isEntityReference(data: unknown): data is EntityReference {
