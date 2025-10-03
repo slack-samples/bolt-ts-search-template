@@ -19,15 +19,24 @@ You'll also need to log in if this is your first time using the Slack CLI.
 slack login
 ```
 
-1. Initializing the project
+#### Initializing the project
 
 ```sh
 slack create bolt-ts-search --template slack-samples/bolt-ts-custom-step-template -branch init
 cd bolt-ts-search
 ```
 
-2. Creating the Slack app: `slack install`
-3. Running the app: `slack run`
+#### Creating the Slack app
+
+```sh
+slack install
+```
+
+#### Running the app
+
+```sh
+slack run
+```
 
 <details>
 <summary><h3>Using Terminal</h3></summary>
@@ -56,6 +65,20 @@ Before you can run the app, you'll need to store some environment variables.
 
 </details>
 
+## Testing
+
+Run the TypeScript compilation, code linting and tests:
+
+```sh
+npm test
+```
+
+Format the source code:
+
+```sh
+npm run lint:fix
+```
+
 ## Project Structure
 
 ### `manifest.json`
@@ -68,4 +91,8 @@ Before you can run the app, you'll need to store some environment variables.
 
 ### `/listeners`
 
-Every incoming request is routed to a "listener". Inside this directory, we group each listener based on the Slack Platform feature used, so `/listeners/shortcuts` handles incoming [Shortcuts](https://api.slack.com/interactivity/shortcuts) requests, `/listeners/views` handles [View submissions](https://api.slack.com/reference/interaction-payloads/views#view_submission) and so on.
+Every incoming request is routed to a "listener". Inside this directory, we group each listener based on the Slack Platform feature used, so `/listeners/events` handles incoming [Events](https://docs.slack.dev/reference/events) requests, `/listeners/functions` handles [custom steps](https://docs.slack.dev/tools/bolt-js/concepts/custom-steps) and so on.
+
+### `/test`
+
+The `/test` directory contains the test suite for this project. It mirrors the structure of the source code, with test files corresponding to their implementation counterparts. For example, tests for files in `/listeners/functions` are located in `/test/listeners/functions`.
