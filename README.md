@@ -1,5 +1,7 @@
 # Bolt for JavaScript (TypeScript) Search Template
 
+> ⚠️ **Beta Notice**: This template demonstrates search functionality that is currently in beta and not yet widely available to all developers. The features shown here are being tested and may change before general availability.
+
 This is a Slack app template for building search functionality using Bolt for TypeScript. It demonstrates how to create custom functions for search and filtering capabilities.
 
 Before getting started, make sure you have a development workspace where you have permissions to install apps. If you don’t have one setup, go ahead and [create one](https://slack.com/create).
