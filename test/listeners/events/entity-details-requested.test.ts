@@ -201,7 +201,7 @@ describe('entityDetailsRequestedCallback', () => {
     await entityDetailsRequestedCallback(buildArguments({ event: eventForNonExistentSample }));
 
     expect(SampleDataService.fetchSampleData).toHaveBeenCalled();
-    expect(fakeLogger.error).toHaveBeenCalledWith(
+    expect(fakeLogger.warn).toHaveBeenCalledWith(
       'Failed to find sample data with external reference id: non-existent-sample',
     );
     expect(fakeClient.apiCall).not.toHaveBeenCalled();
@@ -247,7 +247,7 @@ describe('entityDetailsRequestedCallback', () => {
 
     await entityDetailsRequestedCallback(buildArguments({}));
 
-    expect(fakeLogger.error).toHaveBeenCalledWith(
+    expect(fakeLogger.warn).toHaveBeenCalledWith(
       `Failed to find sample data with external reference id: ${validEvent.external_ref.id}`,
     );
     expect(fakeClient.apiCall).not.toHaveBeenCalled();

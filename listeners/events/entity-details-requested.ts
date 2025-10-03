@@ -18,7 +18,7 @@ async function entityDetailsRequestedCallback({
 
     const sample = response.samples.find((sample) => sample.external_ref.id === event.external_ref.id);
     if (sample === undefined) {
-      logger.error(`Failed to find sample data with external reference id: ${event.external_ref.id}`);
+      logger.warn(`Failed to find sample data with external reference id: ${event.external_ref.id}`);
       return;
     }
 
