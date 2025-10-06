@@ -1,5 +1,5 @@
 import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
-import { SampleDataService } from '../sample-data-fetcher';
+import { SampleDataService } from '../sample-data-service';
 import { isWebAPICallError } from '../type-guards';
 import { isSearchInputs } from './type-guards';
 

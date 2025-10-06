@@ -1,7 +1,7 @@
 import type { AllMiddlewareArgs, Logger, SlackEventMiddlewareArgs } from '@slack/bolt';
 import type { WebClient } from '@slack/web-api';
 import entityDetailsRequestedCallback from '../../../listeners/events/entity-details-requested';
-import { SampleDataService, SlackResponseError } from '../../../listeners/sample-data-fetcher';
+import { SampleDataService, SlackResponseError } from '../../../listeners/sample-data-service';
 import type { SlackSampleDataResponse } from '../../../listeners/types';
 import { fakeClient, fakeLogger, fakeSampleData, fakeSlackResponse } from '../../helpers';
 

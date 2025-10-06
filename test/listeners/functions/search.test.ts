@@ -1,7 +1,7 @@
 import type { AckFn, AllMiddlewareArgs, Logger, SlackEventMiddlewareArgs } from '@slack/bolt';
 import type { WebClient } from '@slack/web-api';
 import searchCallback, { SearchService, SlackResponseError } from '../../../listeners/functions/search';
-import { SampleDataService } from '../../../listeners/sample-data-fetcher';
+import { SampleDataService } from '../../../listeners/sample-data-service';
 import { fakeAck, fakeClient, fakeComplete, fakeFail, fakeLogger, fakeSlackResponse } from '../../helpers';
 
 const validInputs = {
