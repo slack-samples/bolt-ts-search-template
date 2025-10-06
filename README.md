@@ -27,7 +27,7 @@ slack login
 #### Initializing the project
 
 ```sh
-slack create bolt-ts-search --template slack-samples/bolt-ts-search-template -branch init
+slack create bolt-ts-search --template slack-samples/bolt-ts-search-template
 cd bolt-ts-search
 ```
 
