@@ -1,6 +1,6 @@
 import type { FunctionInputs } from '@slack/bolt';
-import { isObject, isString } from '../type-guards';
-import type { FilterInputs, SearchInputs, UserContext } from './types';
+import { isObject, isString } from '../type-guards.js';
+import type { FilterInputs, SearchInputs, UserContext } from './types.js';
 
 export function isUserContext(data: unknown): data is UserContext {
   if (!isObject(data)) {

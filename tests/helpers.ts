@@ -1,22 +1,26 @@
-import type { Logger } from '@slack/bolt';
+import { mock } from 'node:test';
+import type { AckFn } from '@slack/bolt';
 import type { WebClient } from '@slack/web-api';
-import type { SearchResult, SlackSampleDataResponse } from '../listeners/types';
+import type { SearchResult, SlackSampleDataResponse } from '../listeners/types.js';
 
-export const fakeLogger: Logger = {
-  debug: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  setLevel: jest.fn(),
-  getLevel: jest.fn(),
-  setName: jest.fn(),
+export const fakeLogger = {
+  debug: mock.fn(),
+  info: mock.fn(),
+  warn: mock.fn(),
+  error: mock.fn(),
+  resetCalls(): void {
+    fakeLogger.debug.mock.resetCalls();
+    fakeLogger.info.mock.resetCalls();
+    fakeLogger.warn.mock.resetCalls();
+    fakeLogger.error.mock.resetCalls();
+  },
 };
 
-export const fakeClient: WebClient = {} as WebClient;
+export const fakeClient = { apiCall: mock.fn<WebClient['apiCall']>() };
 
-export const fakeAck = jest.fn();
-export const fakeFail = jest.fn();
-export const fakeComplete = jest.fn();
+export const fakeAck = mock.fn<AckFn<void>>();
+export const fakeFail = mock.fn();
+export const fakeComplete = mock.fn();
 
 export const fakeSampleData: SearchResult[] = [
   {

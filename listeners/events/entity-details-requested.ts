@@ -1,7 +1,7 @@
 import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
-import { SampleDataService, SlackResponseError } from '../sample-data-service';
-import { isWebAPICallError } from '../type-guards';
-import { isEntityDetailsRequestedEvent } from './type-guards';
+import { SampleDataService, SlackResponseError } from '../sample-data-service.js';
+import { isWebAPICallError } from '../type-guards.js';
+import { isEntityDetailsRequestedEvent } from './type-guards.js';
 
 async function entityDetailsRequestedCallback({
   client,
@@ -80,4 +80,4 @@ async function entityDetailsRequestedCallback({
   }
 }
 
-export default entityDetailsRequestedCallback;
+export { entityDetailsRequestedCallback };

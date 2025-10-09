@@ -1,9 +1,9 @@
 import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
-import { isWebAPICallError } from '../type-guards';
-import { isFilterInputs } from './type-guards';
-import type { SearchFilter } from './types';
+import { isWebAPICallError } from '../type-guards.js';
+import { isFilterInputs } from './type-guards.js';
+import type { SearchFilter } from './types.js';
 
-export const FilterService = {
+const FilterService = {
   FILTER_PROCESSING_ERROR_MSG:
     'We encountered an issue processing filter results. Please try again or contact the app owner if the problem persists.',
 };
@@ -21,7 +21,7 @@ async function filtersCallback({
       await fail({ error: FilterService.FILTER_PROCESSING_ERROR_MSG });
       return;
     }
-    const { user_context } = inputs as { user_context: { id: string } };
+    const { user_context } = inputs;
     logger.debug(`User ${user_context.id} executing filter request`);
 
     const filters: SearchFilter[] = [
@@ -62,4 +62,4 @@ async function filtersCallback({
   }
 }
 
-export default filtersCallback;
+export { filtersCallback, FilterService };

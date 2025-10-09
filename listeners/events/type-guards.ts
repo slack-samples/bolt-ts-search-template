@@ -1,5 +1,5 @@
-import { isEntityReference, isObject, isString } from '../type-guards';
-import type { EntityDetailsRequestedEvent, Link } from './types';
+import { isEntityReference, isObject, isString } from '../type-guards.js';
+import type { EntityDetailsRequestedEvent, Link } from './types.js';
 
 function isLink(data: unknown): data is Link {
   if (!isObject(data)) {

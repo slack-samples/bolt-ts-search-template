@@ -1,6 +1,6 @@
 import type { App } from '@slack/bolt';
-import events from './events';
-import functions from './functions';
+import events from './events/index.js';
+import functions from './functions/index.js';
 
 const registerListeners = (app: App) => {
   functions.register(app);

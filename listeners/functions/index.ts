@@ -1,6 +1,6 @@
 import type { App } from '@slack/bolt';
-import filtersCallback from './filters';
-import searchCallback from './search';
+import { filtersCallback } from './filters.js';
+import { searchCallback } from './search.js';
 
 const register = (app: App) => {
   app.function('search', { autoAcknowledge: false }, searchCallback);

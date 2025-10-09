@@ -1,4 +1,4 @@
-import type { EntityReference } from '../types';
+import type { EntityReference } from '../types.js';
 
 export interface Link {
   url: string;
