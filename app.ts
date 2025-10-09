@@ -2,8 +2,6 @@ import { App, LogLevel } from '@slack/bolt';
 import 'dotenv/config';
 import registerListeners from './listeners/index.js';
 
-dotenv.config();
-
 /** Initialization */
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
