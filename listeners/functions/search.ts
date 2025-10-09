@@ -1,16 +1,9 @@
 import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
-import { SampleDataService } from '../sample-data-service';
-import { isWebAPICallError } from '../type-guards';
-import { isSearchInputs } from './type-guards';
+import { SampleDataService, SlackResponseError } from '../sample-data-service.js';
+import { isWebAPICallError } from '../type-guards.js';
+import { isSearchInputs } from './type-guards.js';
 
-export class SlackResponseError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'SlackResponseError';
-  }
-}
-
-export const SearchService = {
+const SearchService = {
   SEARCH_PROCESSING_ERROR_MSG:
     'We encountered an issue processing your search results. Please try again or contact the app owner if the problem persists.',
 };
@@ -56,4 +49,4 @@ async function searchCallback({
   }
 }
 
-export default searchCallback;
+export { searchCallback, SearchService };

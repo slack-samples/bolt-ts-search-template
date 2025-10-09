@@ -1,7 +1,7 @@
 import type { Logger } from '@slack/bolt';
 import type { WebClient } from '@slack/web-api';
-import { isSlackSampleDataResponse } from './type-guards';
-import type { Filters } from './types';
+import { isSlackSampleDataResponse } from './type-guards.js';
+import type { Filters } from './types.js';
 
 export class SlackResponseError extends Error {
   constructor(message: string) {

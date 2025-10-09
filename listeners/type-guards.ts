@@ -1,5 +1,5 @@
 import { ErrorCode, type WebAPICallError } from '@slack/web-api';
-import type { EntityReference, SearchResult, SlackSampleDataResponse } from './types';
+import type { EntityReference, SearchResult, SlackSampleDataResponse } from './types.js';
 
 export function isString(value: unknown): value is string {
   return typeof value === 'string';
@@ -9,8 +9,8 @@ function isBoolean(value: unknown): value is boolean {
   return typeof value === 'boolean';
 }
 
-export function isObject(value: unknown): value is object {
-  return typeof value === 'object' && value !== null;
+export function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function isArray<T>(value: unknown, itemGuard?: (item: unknown) => item is T): value is T[] {

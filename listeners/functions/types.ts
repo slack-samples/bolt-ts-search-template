@@ -1,5 +1,5 @@
 import type { FunctionInputs } from '@slack/bolt';
-import type { Filters } from '../types';
+import type { Filters } from '../types.js';
 
 export interface UserContext {
   id: string;
