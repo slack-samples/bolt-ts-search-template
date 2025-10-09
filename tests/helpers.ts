@@ -8,12 +8,15 @@ export const fakeLogger = {
   info: mock.fn(),
   warn: mock.fn(),
   error: mock.fn(),
-  setLevel: mock.fn(),
-  getLevel: mock.fn(),
-  setName: mock.fn(),
+  resetCalls(): void {
+    fakeLogger.debug.mock.resetCalls();
+    fakeLogger.info.mock.resetCalls();
+    fakeLogger.warn.mock.resetCalls();
+    fakeLogger.error.mock.resetCalls();
+  },
 };
 
-export const fakeClient: WebClient = {} as WebClient;
+export const fakeClient = { apiCall: mock.fn<WebClient['apiCall']>() };
 
 export const fakeAck = mock.fn<AckFn<void>>();
 export const fakeFail = mock.fn();

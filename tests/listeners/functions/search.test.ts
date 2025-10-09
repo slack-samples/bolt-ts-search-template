@@ -1,17 +1,18 @@
 import assert from 'node:assert';
 import { beforeEach, describe, it, mock } from 'node:test';
 import type { AckFn, AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
-import type { WebClient } from '@slack/web-api';
 import { SearchService, searchCallback } from '../../../listeners/functions/search.js';
 import { SampleDataService, SlackResponseError } from '../../../listeners/sample-data-service.js';
-import { fakeAck, fakeClient, fakeComplete, fakeFail, fakeLogger, fakeSlackResponse } from '../../helpers.js';
 import { isString } from '../../../listeners/type-guards.js';
+import { fakeAck, fakeClient, fakeComplete, fakeFail, fakeLogger, fakeSlackResponse } from '../../helpers.js';
 
 const validInputs = {
   query: 'javascript',
   filters: { language: 'javascript', type: 'template' },
   user_context: { id: 'U123456', secret: 'secret123' },
 };
+
+const mockFetchSampleData = mock.method(SampleDataService, 'fetchSampleData');
 
 const buildArguments = ({
   ack = fakeAck,
@@ -25,7 +26,7 @@ const buildArguments = ({
   inputs?: Record<string, unknown>;
   fail?: typeof fakeFail;
   complete?: typeof fakeComplete;
-  client?: WebClient;
+  client?: typeof fakeClient;
   logger?: typeof fakeLogger;
 }): AllMiddlewareArgs & SlackEventMiddlewareArgs<'function_executed'> => {
   return {
@@ -40,17 +41,15 @@ const buildArguments = ({
 
 describe('searchCallback', () => {
   beforeEach(() => {
-    mock.reset();
-    // Reset all mock functions
     fakeAck.mock.resetCalls();
     fakeFail.mock.resetCalls();
     fakeComplete.mock.resetCalls();
-    fakeLogger.error.mock.resetCalls();
-  });
-  it('should successfully process valid search inputs', async () => {
-    const mockFetchSampleData = mock.method(SampleDataService, 'fetchSampleData');
+    fakeLogger.resetCalls();
+    mockFetchSampleData.mock.resetCalls();
     mockFetchSampleData.mock.mockImplementation(() => Promise.resolve(fakeSlackResponse));
+  });
 
+  it('should successfully process valid search inputs', async () => {
     await searchCallback(buildArguments({}));
 
     assert(mockFetchSampleData.mock.callCount() === 1);
@@ -101,10 +100,9 @@ describe('searchCallback', () => {
   });
 
   it('should handle SlackResponseError from fetchSampleData', async () => {
-    const fakeResponseError = new SlackResponseError('Failed to fetch sample data from Slack API');
-
-    const mockFetchSampleData = mock.method(SampleDataService, 'fetchSampleData');
-    mockFetchSampleData.mock.mockImplementation(() => Promise.reject(fakeResponseError));
+    mockFetchSampleData.mock.mockImplementation(() => {
+      throw new SlackResponseError('Failed to fetch sample data from Slack API');
+    });
 
     await searchCallback(buildArguments({ logger: fakeLogger }));
 
@@ -119,10 +117,9 @@ describe('searchCallback', () => {
   });
 
   it('should handle unexpected errors', async () => {
-    const unexpectedError = new TypeError('Unexpected error');
-
-    const mockFetchSampleData = mock.method(SampleDataService, 'fetchSampleData');
-    mockFetchSampleData.mock.mockImplementation(() => Promise.reject(unexpectedError));
+    mockFetchSampleData.mock.mockImplementation(() => {
+      throw new TypeError('Unexpected error');
+    });
 
     await searchCallback(buildArguments({ logger: fakeLogger }));
 
@@ -138,9 +135,6 @@ describe('searchCallback', () => {
   });
 
   it('should always call ack regardless of success or failure', async () => {
-    const mockFetchSampleData = mock.method(SampleDataService, 'fetchSampleData');
-    mockFetchSampleData.mock.mockImplementation(() => Promise.resolve(fakeSlackResponse));
-
     await searchCallback(buildArguments({}));
 
     assert(fakeAck.mock.callCount() === 1);
@@ -149,7 +143,7 @@ describe('searchCallback', () => {
     fakeAck.mock.resetCalls();
     fakeFail.mock.resetCalls();
     fakeComplete.mock.resetCalls();
-    fakeLogger.error.mock.resetCalls();
+    fakeLogger.resetCalls();
 
     mockFetchSampleData.mock.mockImplementation(() => Promise.reject(new Error('Test error')));
 
@@ -159,9 +153,6 @@ describe('searchCallback', () => {
   });
 
   it('should pass correct search results to complete', async () => {
-    const mockFetchSampleData = mock.method(SampleDataService, 'fetchSampleData');
-    mockFetchSampleData.mock.mockImplementation(() => Promise.resolve(fakeSlackResponse));
-
     await searchCallback(buildArguments({}));
 
     assert(fakeComplete.mock.callCount() === 1);
