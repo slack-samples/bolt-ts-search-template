@@ -13,7 +13,7 @@ export function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function isArray<T>(value: unknown, itemGuard?: (item: unknown) => item is T): value is T[] {
+export function isArray<T>(value: unknown, itemGuard?: (item: unknown) => item is T): value is T[] {
   if (!Array.isArray(value)) {
     return false;
   }

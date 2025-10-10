@@ -1,4 +1,7 @@
-export interface Filters extends Record<string, boolean | string | string[]> {}
+export interface Filters {
+  languages?: string[];
+  type?: string[];
+}
 
 export interface EntityReference {
   id: string;
