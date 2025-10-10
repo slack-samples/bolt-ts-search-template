@@ -22,10 +22,21 @@ export const SampleDataService = {
     filters?: Filters;
     logger: Logger;
   }) => {
-    const options = {
+    const options: { query?: string; filters?: Record<string, string | string[]> } = {
       ...(query && { query }),
-      ...(filters && { filters }),
     };
+    if (filters) {
+      const languagesFilter = filters.languages ?? [];
+      const typeFilter = filters.type ?? [];
+
+      const selectedFilters = {
+        ...(languagesFilter.length > 0 && { languages: languagesFilter }),
+        ...(typeFilter.length === 1 && { type: typeFilter[0] }),
+      };
+      if (Object.keys(selectedFilters).length > 0) {
+        options.filters = selectedFilters;
+      }
+    }
     const response = await client.apiCall('developer.sampleData.get', options);
 
     if (!response.ok) {

@@ -8,7 +8,7 @@ import { fakeAck, fakeClient, fakeComplete, fakeFail, fakeLogger, fakeSlackRespo
 
 const validInputs = {
   query: 'javascript',
-  filters: { language: 'javascript', type: 'template' },
+  filters: { language: ['javascript'], type: ['template'] },
   user_context: { id: 'U123456', secret: 'secret123' },
 };
 
