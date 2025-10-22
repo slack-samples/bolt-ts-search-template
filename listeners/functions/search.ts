@@ -3,10 +3,8 @@ import { SampleDataService, SlackResponseError } from '../sample-data-service.js
 import { isWebAPICallError } from '../type-guards.js';
 import { isSearchInputs } from './type-guards.js';
 
-const SearchService = {
-  SEARCH_PROCESSING_ERROR_MSG:
-    'We encountered an issue processing your search results. Please try again or contact the app owner if the problem persists.',
-};
+const SEARCH_PROCESSING_ERROR_MSG =
+  'We encountered an issue processing your search results. Please try again or contact the app owner if the problem persists.';
 
 async function searchCallback({
   ack,
@@ -19,7 +17,7 @@ async function searchCallback({
   try {
     if (!isSearchInputs(inputs)) {
       logger.error(`Invalid search inputs provided - received: ${JSON.stringify(inputs)}`);
-      await fail({ error: SearchService.SEARCH_PROCESSING_ERROR_MSG });
+      await fail({ error: SEARCH_PROCESSING_ERROR_MSG });
       return;
     }
 
@@ -43,10 +41,10 @@ async function searchCallback({
         `Unexpected error occurred while processing search request: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
-    await fail({ error: SearchService.SEARCH_PROCESSING_ERROR_MSG });
+    await fail({ error: SEARCH_PROCESSING_ERROR_MSG });
   } finally {
     await ack();
   }
 }
 
-export { searchCallback, SearchService };
+export { searchCallback, SEARCH_PROCESSING_ERROR_MSG };

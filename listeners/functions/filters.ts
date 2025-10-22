@@ -3,9 +3,32 @@ import { isWebAPICallError } from '../type-guards.js';
 import { isFilterInputs } from './type-guards.js';
 import type { SearchFilter } from './types.js';
 
-const FilterService = {
-  FILTER_PROCESSING_ERROR_MSG:
-    'We encountered an issue processing filter results. Please try again or contact the app owner if the problem persists.',
+const FILTER_PROCESSING_ERROR_MSG =
+  'We encountered an issue processing filter results. Please try again or contact the app owner if the problem persists.';
+
+const LANGUAGES_FILTER: SearchFilter = {
+  name: 'languages',
+  display_name: 'Language',
+  display_name_plural: 'Languages',
+  type: 'multi_select',
+  options: [
+    { name: 'Python', value: 'python' },
+    { name: 'Java', value: 'java' },
+    { name: 'JavaScript', value: 'javascript' },
+    { name: 'TypeScript', value: 'typescript' },
+  ],
+};
+
+const TEMPLATES_FILTER: SearchFilter = {
+  name: 'template',
+  display_name: 'Templates',
+  type: 'toggle',
+};
+
+const SAMPLES_FILTER: SearchFilter = {
+  name: 'sample',
+  display_name: 'Samples',
+  type: 'toggle',
 };
 
 async function filtersCallback({
@@ -18,34 +41,13 @@ async function filtersCallback({
   try {
     if (!isFilterInputs(inputs)) {
       logger.error(`Invalid filter inputs provided - received: ${JSON.stringify(inputs)}`);
-      await fail({ error: FilterService.FILTER_PROCESSING_ERROR_MSG });
+      await fail({ error: FILTER_PROCESSING_ERROR_MSG });
       return;
     }
     const { user_context } = inputs;
     logger.debug(`User ${user_context.id} executing filter request`);
 
-    const filters: SearchFilter[] = [
-      {
-        name: 'languages',
-        display_name: 'Languages',
-        type: 'multi_select',
-        options: [
-          { name: 'Python', value: 'python' },
-          { name: 'Java', value: 'java' },
-          { name: 'JavaScript', value: 'javascript' },
-          { name: 'TypeScript', value: 'typescript' },
-        ],
-      },
-      {
-        name: 'type',
-        display_name: 'Type',
-        type: 'multi_select',
-        options: [
-          { name: 'Template', value: 'template' },
-          { name: 'Sample', value: 'sample' },
-        ],
-      },
-    ];
+    const filters: SearchFilter[] = [LANGUAGES_FILTER, TEMPLATES_FILTER, SAMPLES_FILTER];
 
     await complete({ outputs: { filters } });
   } catch (error) {
@@ -56,10 +58,10 @@ async function filtersCallback({
         `Unexpected error occurred while processing filters request: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
-    await fail({ error: FilterService.FILTER_PROCESSING_ERROR_MSG });
+    await fail({ error: FILTER_PROCESSING_ERROR_MSG });
   } finally {
     await ack();
   }
 }
 
-export { filtersCallback, FilterService };
+export { filtersCallback, FILTER_PROCESSING_ERROR_MSG, LANGUAGES_FILTER, TEMPLATES_FILTER, SAMPLES_FILTER };

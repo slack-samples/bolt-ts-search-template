@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { beforeEach, describe, it } from 'node:test';
 import type { AckFn, AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
-import { FilterService, filtersCallback } from '../../../listeners/functions/filters.js';
+import { FILTER_PROCESSING_ERROR_MSG, filtersCallback } from '../../../listeners/functions/filters.js';
 import { fakeAck, fakeComplete, fakeFail, fakeLogger } from '../../helpers.js';
 
 const validInputs = {
@@ -45,12 +45,13 @@ describe('filtersCallback', () => {
     const completeCallArgs = fakeComplete.mock.calls[0].arguments[0];
     assert(completeCallArgs.outputs);
     assert(Array.isArray(completeCallArgs.outputs.filters));
-    assert(completeCallArgs.outputs.filters.length === 2);
+    assert(completeCallArgs.outputs.filters.length === 3);
 
     const languagesFilter = completeCallArgs.outputs.filters.find((f: { name: string }) => f.name === 'languages');
     assert.deepStrictEqual(languagesFilter, {
       name: 'languages',
-      display_name: 'Languages',
+      display_name: 'Language',
+      display_name_plural: 'Languages',
       type: 'multi_select',
       options: [
         { name: 'Python', value: 'python' },
@@ -60,15 +61,18 @@ describe('filtersCallback', () => {
       ],
     });
 
-    const typeFilter = completeCallArgs.outputs.filters.find((f: { name: string }) => f.name === 'type');
-    assert.deepStrictEqual(typeFilter, {
-      name: 'type',
-      display_name: 'Type',
-      type: 'multi_select',
-      options: [
-        { name: 'Template', value: 'template' },
-        { name: 'Sample', value: 'sample' },
-      ],
+    const templatesFilter = completeCallArgs.outputs.filters.find((f: { name: string }) => f.name === 'template');
+    assert.deepStrictEqual(templatesFilter, {
+      display_name: 'Templates',
+      name: 'template',
+      type: 'toggle',
+    });
+
+    const samplesFilter = completeCallArgs.outputs.filters.find((f: { name: string }) => f.name === 'sample');
+    assert.deepStrictEqual(samplesFilter, {
+      display_name: 'Samples',
+      name: 'sample',
+      type: 'toggle',
     });
 
     assert(fakeAck.mock.callCount() === 1);
@@ -86,7 +90,7 @@ describe('filtersCallback', () => {
     assert(fakeLogger.error.mock.calls[0].arguments[0].includes('Invalid filter inputs provided'));
     assert(fakeFail.mock.callCount() === 1);
     assert.deepStrictEqual(fakeFail.mock.calls[0].arguments[0], {
-      error: FilterService.FILTER_PROCESSING_ERROR_MSG,
+      error: FILTER_PROCESSING_ERROR_MSG,
     });
     assert(fakeComplete.mock.callCount() === 0);
     assert(fakeAck.mock.callCount() === 1);
@@ -99,7 +103,7 @@ describe('filtersCallback', () => {
 
     assert(fakeFail.mock.callCount() === 1);
     assert.deepStrictEqual(fakeFail.mock.calls[0].arguments[0], {
-      error: FilterService.FILTER_PROCESSING_ERROR_MSG,
+      error: FILTER_PROCESSING_ERROR_MSG,
     });
     assert(fakeComplete.mock.callCount() === 0);
   });
@@ -113,7 +117,7 @@ describe('filtersCallback', () => {
 
     assert(fakeFail.mock.callCount() === 1);
     assert.deepStrictEqual(fakeFail.mock.calls[0].arguments[0], {
-      error: FilterService.FILTER_PROCESSING_ERROR_MSG,
+      error: FILTER_PROCESSING_ERROR_MSG,
     });
     assert(fakeComplete.mock.callCount() === 0);
   });
@@ -133,7 +137,7 @@ describe('filtersCallback', () => {
     );
     assert(fakeFail.mock.callCount() === 1);
     assert.deepStrictEqual(fakeFail.mock.calls[0].arguments[0], {
-      error: FilterService.FILTER_PROCESSING_ERROR_MSG,
+      error: FILTER_PROCESSING_ERROR_MSG,
     });
     assert(fakeAck.mock.callCount() === 1);
   });

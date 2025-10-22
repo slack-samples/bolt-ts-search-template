@@ -12,8 +12,9 @@ export interface FilterOption {
 }
 
 export interface SearchFilter {
-  name: string;
+  name: keyof Filters;
   display_name: string;
+  display_name_plural?: string;
   type: string;
   options?: FilterOption[];
 }
