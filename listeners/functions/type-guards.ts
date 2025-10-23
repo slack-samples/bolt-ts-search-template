@@ -1,6 +1,7 @@
 import type { FunctionInputs } from '@slack/bolt';
-import { isArray, isObject, isString } from '../type-guards.js';
+import { isArray, isBoolean, isObject, isString } from '../type-guards.js';
 import type { Filters } from '../types.js';
+import { LANGUAGES_FILTER, SAMPLES_FILTER, TEMPLATES_FILTER } from './filters.js';
 import type { FilterInputs, SearchInputs, UserContext } from './types.js';
 
 export function isUserContext(data: unknown): data is UserContext {
@@ -35,11 +36,15 @@ function isFilters(data: unknown): data is Filters {
     return false;
   }
 
-  if ('languages' in data && !isArray(data.languages, isString)) {
+  if (LANGUAGES_FILTER.name in data && !isArray(data[LANGUAGES_FILTER.name], isString)) {
     return false;
   }
 
-  if ('type' in data && !isArray(data.type, isString)) {
+  if (SAMPLES_FILTER.name in data && !isBoolean(data[SAMPLES_FILTER.name])) {
+    return false;
+  }
+
+  if (TEMPLATES_FILTER.name in data && !isBoolean(data[TEMPLATES_FILTER.name])) {
     return false;
   }
 

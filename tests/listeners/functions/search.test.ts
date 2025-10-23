@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { beforeEach, describe, it, mock } from 'node:test';
 import type { AckFn, AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
-import { SearchService, searchCallback } from '../../../listeners/functions/search.js';
+import { SEARCH_PROCESSING_ERROR_MSG, searchCallback } from '../../../listeners/functions/search.js';
 import { SampleDataService, SlackResponseError } from '../../../listeners/sample-data-service.js';
 import { isString } from '../../../listeners/type-guards.js';
 import { fakeAck, fakeClient, fakeComplete, fakeFail, fakeLogger, fakeSlackResponse } from '../../helpers.js';
@@ -81,7 +81,7 @@ describe('searchCallback', () => {
     assert(fakeLogger.error.mock.calls[0].arguments[0].includes('Invalid search inputs provided'));
     assert(fakeFail.mock.callCount() === 1);
     assert.deepStrictEqual(fakeFail.mock.calls[0].arguments[0], {
-      error: SearchService.SEARCH_PROCESSING_ERROR_MSG,
+      error: SEARCH_PROCESSING_ERROR_MSG,
     });
     assert(fakeComplete.mock.callCount() === 0);
     assert(fakeAck.mock.callCount() === 1);
@@ -110,7 +110,7 @@ describe('searchCallback', () => {
     assert(fakeLogger.error.mock.calls[0].arguments[0].includes('Failed to fetch or parse sample data'));
     assert(fakeFail.mock.callCount() === 1);
     assert.deepStrictEqual(fakeFail.mock.calls[0].arguments[0], {
-      error: SearchService.SEARCH_PROCESSING_ERROR_MSG,
+      error: SEARCH_PROCESSING_ERROR_MSG,
     });
     assert(fakeComplete.mock.callCount() === 0);
     assert(fakeAck.mock.callCount() === 1);
@@ -129,7 +129,7 @@ describe('searchCallback', () => {
     );
     assert(fakeFail.mock.callCount() === 1);
     assert.deepStrictEqual(fakeFail.mock.calls[0].arguments[0], {
-      error: SearchService.SEARCH_PROCESSING_ERROR_MSG,
+      error: SEARCH_PROCESSING_ERROR_MSG,
     });
     assert(fakeAck.mock.callCount() === 1);
   });

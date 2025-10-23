@@ -1,7 +1,6 @@
-import type { Logger } from '@slack/bolt';
-import type { WebClient } from '@slack/web-api';
+import { SAMPLES_FILTER, TEMPLATES_FILTER } from './functions/filters.js';
 import { isSlackSampleDataResponse } from './type-guards.js';
-import type { Filters } from './types.js';
+import type { DeveloperSampleDataGetOptions, FetchSampleDataOptions } from './types.js';
 
 export class SlackResponseError extends Error {
   constructor(message: string) {
@@ -11,33 +10,34 @@ export class SlackResponseError extends Error {
 }
 
 export const SampleDataService = {
-  fetchSampleData: async ({
-    client,
-    query,
-    filters,
-    logger,
-  }: {
-    client: WebClient;
-    query?: string;
-    filters?: Filters;
-    logger: Logger;
-  }) => {
-    const options: { query?: string; filters?: Record<string, string | string[]> } = {
+  API_METHOD: 'developer.sampleData.get',
+  fetchSampleData: async ({ client, query, filters, logger }: FetchSampleDataOptions) => {
+    const options: DeveloperSampleDataGetOptions = {
       ...(query && { query }),
     };
     if (filters) {
-      const languagesFilter = filters.languages ?? [];
-      const typeFilter = filters.type ?? [];
+      const selectedFilters: DeveloperSampleDataGetOptions['filters'] = {};
+      const languages = filters.languages;
+      const templates = filters.template ?? false;
+      const samples = filters.sample ?? false;
 
-      const selectedFilters = {
-        ...(languagesFilter.length > 0 && { languages: languagesFilter }),
-        ...(typeFilter.length === 1 && { type: typeFilter[0] }),
-      };
-      if (Object.keys(selectedFilters).length > 0) {
+      if (languages && Array.isArray(languages) && languages.length > 0) {
+        selectedFilters.languages = languages;
+      }
+
+      if (xor(templates, samples)) {
+        if (templates) {
+          selectedFilters.type = TEMPLATES_FILTER.name;
+        } else if (samples) {
+          selectedFilters.type = SAMPLES_FILTER.name;
+        }
+      }
+
+      if (Object.entries(selectedFilters).length > 0) {
         options.filters = selectedFilters;
       }
     }
-    const response = await client.apiCall('developer.sampleData.get', options);
+    const response = await client.apiCall(SampleDataService.API_METHOD, options);
 
     if (!response.ok) {
       logger.error(`Search API request failed with error: ${response.error}`);
@@ -50,4 +50,8 @@ export const SampleDataService = {
     }
     return response;
   },
+};
+
+const xor = (a: boolean, b: boolean): boolean => {
+  return (a || b) && !(a && b);
 };

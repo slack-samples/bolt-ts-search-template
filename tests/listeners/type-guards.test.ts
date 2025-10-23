@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import { ErrorCode } from '@slack/web-api';
 import {
+  isBoolean,
   isEntityReference,
   isObject,
   isSlackSampleDataResponse,
@@ -42,6 +43,24 @@ describe('isObject', () => {
     assert(!isObject(true));
     assert(!isObject(() => {}));
     assert(!isObject([]));
+  });
+});
+
+describe('isBoolean', () => {
+  it('should return true for valid boolean values', () => {
+    assert(isBoolean(true));
+    assert(isBoolean(false));
+  });
+
+  it('should return false for non-boolean values', () => {
+    assert(!isBoolean('true'));
+    assert(!isBoolean(1));
+    assert(!isBoolean(0));
+    assert(!isBoolean(null));
+    assert(!isBoolean(undefined));
+    assert(!isBoolean({}));
+    assert(!isBoolean([]));
+    assert(!isBoolean(() => {}));
   });
 });
 
