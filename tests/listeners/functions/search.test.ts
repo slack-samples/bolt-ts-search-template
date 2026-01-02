@@ -62,7 +62,7 @@ describe('searchCallback', () => {
     assert(fakeComplete.mock.callCount() === 1);
     const completeCallArgs = fakeComplete.mock.calls[0].arguments[0];
     assert(completeCallArgs.outputs);
-    assert(Array.isArray(completeCallArgs.outputs.search_result));
+    assert(Array.isArray(completeCallArgs.outputs.search_results));
 
     assert(fakeAck.mock.callCount() === 1);
     assert(fakeFail.mock.callCount() === 0);
@@ -158,10 +158,10 @@ describe('searchCallback', () => {
     assert(fakeComplete.mock.callCount() === 1);
     const completeCallArgs = fakeComplete.mock.calls[0].arguments[0];
     assert(completeCallArgs.outputs);
-    assert(Array.isArray(completeCallArgs.outputs.search_result));
-    assert(completeCallArgs.outputs.search_result.length > 0);
+    assert(Array.isArray(completeCallArgs.outputs.search_results));
+    assert(completeCallArgs.outputs.search_results.length > 0);
 
-    const firstResult = completeCallArgs.outputs.search_result[0];
+    const firstResult = completeCallArgs.outputs.search_results[0];
 
     assert(isString(firstResult.title));
     assert(isString(firstResult.description));

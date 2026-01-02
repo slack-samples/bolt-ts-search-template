@@ -28,7 +28,7 @@ async function searchCallback({
 
     await complete({
       outputs: {
-        search_result: response.samples,
+        search_results: response.samples,
       },
     });
   } catch (error) {
