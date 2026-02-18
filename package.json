@@ -1,7 +1,7 @@
 {
   "name": "bolt-ts-search-template",
   "version": "1.0.0",
-  "description": "A scaffold template for Slack apps",
+  "description": "A template for implementing enterprise search in Bolt for TypeScript",
   "main": "dist/app.js",
   "type": "module",
   "scripts": {
