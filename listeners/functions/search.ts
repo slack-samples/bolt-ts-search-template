@@ -47,4 +47,4 @@ async function searchCallback({
   }
 }
 
-export { searchCallback, SEARCH_PROCESSING_ERROR_MSG };
+export { SEARCH_PROCESSING_ERROR_MSG, searchCallback };
