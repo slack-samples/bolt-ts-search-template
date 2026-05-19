@@ -40,7 +40,8 @@ export const SampleDataService = {
     const response = await client.apiCall(SampleDataService.API_METHOD, options);
 
     if (!response.ok) {
-      logger.error(`Search API request failed with error: ${response.error}`);
+      const error = 'error' in response ? response.error : 'unknown_error';
+      logger.error(`Search API request failed with error: ${error}`);
       throw new SlackResponseError('Failed to fetch sample data from Slack API');
     }
 
