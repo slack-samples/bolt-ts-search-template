@@ -1,5 +1,5 @@
 import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
-import { isWebAPICallError } from '../type-guards.js';
+import { SlackError } from '@slack/web-api';
 import { isFilterInputs } from './type-guards.js';
 import type { SearchFilter } from './types.js';
 
@@ -51,7 +51,7 @@ async function filtersCallback({
 
     await complete({ outputs: { filters } });
   } catch (error) {
-    if (isWebAPICallError(error)) {
+    if (error instanceof SlackError) {
       logger.error(`Slack API call failed with error code ${error.code}. Check error details below:`, error);
     } else {
       logger.error(

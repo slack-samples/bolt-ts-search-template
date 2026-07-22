@@ -1,6 +1,6 @@
 import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from '@slack/bolt';
+import { SlackError } from '@slack/web-api';
 import { SampleDataService, SlackResponseError } from '../sample-data-service.js';
-import { isWebAPICallError } from '../type-guards.js';
 import { isSearchInputs } from './type-guards.js';
 
 const SEARCH_PROCESSING_ERROR_MSG =
@@ -34,7 +34,7 @@ async function searchCallback({
   } catch (error) {
     if (error instanceof SlackResponseError) {
       logger.error(`Failed to fetch or parse sample data. Error details: ${error.message}`);
-    } else if (isWebAPICallError(error)) {
+    } else if (error instanceof SlackError) {
       logger.error(`Slack API call failed with error code ${error.code}. Check error details below:`, error);
     } else {
       logger.error(

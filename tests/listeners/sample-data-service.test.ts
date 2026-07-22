@@ -1,5 +1,6 @@
 import assert from 'node:assert';
 import { beforeEach, describe, it } from 'node:test';
+import { WebAPIPlatformError } from '@slack/web-api';
 import { LANGUAGES_FILTER, SAMPLES_FILTER, TEMPLATES_FILTER } from '../../listeners/functions/filters.js';
 import { SampleDataService } from '../../listeners/sample-data-service.js';
 import type { FetchSampleDataOptions, Filters } from '../../listeners/types.js';
@@ -236,12 +237,18 @@ describe('SampleDataService', () => {
       ]);
     });
 
-    it('should throw SlackResponseError when API returns ok: false', async () => {
-      const errorResponse = {
-        ok: false,
-        error: 'invalid_auth',
-      };
-      fakeClient.apiCall.mock.mockImplementation(() => Promise.resolve(errorResponse));
+    it('should propagate the error the SDK throws on a failed API call', async () => {
+      const apiError = new WebAPIPlatformError({ ok: false, error: 'invalid_auth' });
+      fakeClient.apiCall.mock.mockImplementation(() => Promise.reject(apiError));
+
+      await assert.rejects(async () => {
+        await SampleDataService.fetchSampleData(buildArguments({}));
+      }, apiError);
+    });
+
+    it('should throw SlackResponseError when the response is not valid sample data', async () => {
+      const malformedResponse = { ok: true, samples: 'not an array' };
+      fakeClient.apiCall.mock.mockImplementation(() => Promise.resolve(malformedResponse));
 
       await assert.rejects(
         async () => {
@@ -249,14 +256,12 @@ describe('SampleDataService', () => {
         },
         {
           name: 'SlackResponseError',
-          message: 'Failed to fetch sample data from Slack API',
+          message: 'Invalid response format from Slack API',
         },
       );
 
       assert(fakeLogger.error.mock.callCount() === 1);
-      assert(
-        fakeLogger.error.mock.calls[0].arguments[0].includes('Search API request failed with error: invalid_auth'),
-      );
+      assert(fakeLogger.error.mock.calls[0].arguments[0].includes('Failed to parse API response as sample data'));
     });
   });
 });

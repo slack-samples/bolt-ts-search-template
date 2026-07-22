@@ -39,11 +39,6 @@ export const SampleDataService = {
     }
     const response = await client.apiCall(SampleDataService.API_METHOD, options);
 
-    if (!response.ok) {
-      logger.error(`Search API request failed with error: ${response.error}`);
-      throw new SlackResponseError('Failed to fetch sample data from Slack API');
-    }
-
     if (!isSlackSampleDataResponse(response)) {
       logger.error(`Failed to parse API response as sample data. Received: ${JSON.stringify(response)}`);
       throw new SlackResponseError('Invalid response format from Slack API');

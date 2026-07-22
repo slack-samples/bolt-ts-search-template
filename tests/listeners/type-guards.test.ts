@@ -1,13 +1,11 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
-import { ErrorCode } from '@slack/web-api';
 import {
   isBoolean,
   isEntityReference,
   isObject,
   isSlackSampleDataResponse,
   isString,
-  isWebAPICallError,
 } from '../../listeners/type-guards.js';
 import type { EntityReference, SlackSampleDataResponse } from '../../listeners/types.js';
 import { fakeSampleData } from '../helpers.js';
@@ -61,31 +59,6 @@ describe('isBoolean', () => {
     assert(!isBoolean({}));
     assert(!isBoolean([]));
     assert(!isBoolean(() => {}));
-  });
-});
-
-describe('isWebAPICallError', () => {
-  it('should return true for valid WebAPICallError objects', () => {
-    const validError = {
-      code: ErrorCode.PlatformError,
-      message: 'Something went wrong',
-    };
-    assert(isWebAPICallError(validError));
-  });
-
-  it('should return false for objects without code property', () => {
-    const errorWithoutCode = {
-      message: 'Something went wrong',
-    };
-    assert(!isWebAPICallError(errorWithoutCode));
-  });
-
-  it('should return false for objects with invalid code', () => {
-    const errorWithInvalidCode = {
-      code: 'invalid_code',
-      message: 'Something went wrong',
-    };
-    assert(!isWebAPICallError(errorWithInvalidCode));
   });
 });
 
