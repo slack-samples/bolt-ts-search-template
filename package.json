@@ -8,7 +8,7 @@
     "build": "tsc",
     "start": "npm run build && node ./dist/app.js",
     "lint": "npx @biomejs/biome check .",
-    "lint:fix": "npx @biomejs/biome check --write *.ts listeners tests",
+    "lint:fix": "npx @biomejs/biome check --write .",
     "test": "npm run build && npm run lint && node --import tsx --test"
   },
   "author": "Slack Technologies, LLC",
